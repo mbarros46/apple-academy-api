@@ -59,7 +59,10 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfig() {
         var config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000", "https://sua-url-frontend-producao.render.com"));
+        config.setAllowedOrigins(List.of(
+            "http://localhost:3000",
+            "https://seu-front-em-producao.com"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
         config.setAllowedHeaders(List.of("*"));
         var source = new UrlBasedCorsConfigurationSource();
