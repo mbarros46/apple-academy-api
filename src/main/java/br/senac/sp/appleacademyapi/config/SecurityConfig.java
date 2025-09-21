@@ -38,6 +38,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/login/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/mentor", "/mentors").permitAll()
+                        .requestMatchers(
+                            "/actuator/health",
+                            "/actuator/info",
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**"
+                        ).permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
