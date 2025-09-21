@@ -1,7 +1,6 @@
 package br.senac.sp.appleacademyapi.config;
 
 import java.util.List;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -27,7 +26,7 @@ public class SecurityConfig {
     private final AuthFilter authFilter;
     private final AuthEntryPoint authEntryPoint;
 
-    public SecurityConfig(AuthFilter authFilter, AuthEntryPoint authEntryPoint){
+    public SecurityConfig(AuthFilter authFilter, AuthEntryPoint authEntryPoint) {
         this.authFilter = authFilter;
         this.authEntryPoint = authEntryPoint;
     }
@@ -40,8 +39,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/login/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/mentor", "/mentors").permitAll()
                         .anyRequest().authenticated())
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
                 .cors(Customizer.withDefaults())
@@ -49,7 +47,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    PasswordEncoder passwordEncoder(){
+    PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -59,15 +57,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    CorsConfigurationSource corsConfig(){
+    CorsConfigurationSource corsConfig() {
         var config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:3000/"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
         config.setAllowedHeaders(List.of("*"));
-
         var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-    
 }
