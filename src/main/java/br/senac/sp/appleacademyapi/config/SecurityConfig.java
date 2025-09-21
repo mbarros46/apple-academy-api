@@ -1,6 +1,9 @@
 package br.senac.sp.appleacademyapi.config;
 
 import java.util.List;
+
+import br.senac.sp.appleacademyapi.security.AuthEntryPoint;
+import br.senac.sp.appleacademyapi.security.AuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,9 +20,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import br.senac.sp.appleacademyapi.security.AuthEntryPoint;
-import br.senac.sp.appleacademyapi.security.AuthFilter;
-
 @Configuration
 public class SecurityConfig {
 
@@ -34,22 +34,28 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/login/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/mentor", "/mentors").permitAll()
-                        .requestMatchers(
-                            "/actuator/health",
-                            "/actuator/info",
-                            "/swagger-ui/**",
-                            "/v3/api-docs/**"
-                        ).permitAll()
-                        .anyRequest().authenticated())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
-                .cors(Customizer.withDefaults())
-                .build();
+            .csrf(csrf -> csrf.disable())
+            .cors(Customizer.withDefaults())
+            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(
+                    "/",
+                    "/error",
+                    "/favicon.ico",
+                    "/actuator/health",
+                    "/actuator/info",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/webjars/**"
+                ).permitAll()
+                .requestMatchers(HttpMethod.POST, "/login/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/mentor", "/mentors").permitAll()
+                .anyRequest().authenticated()
+            )
+            .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
+            .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
     }
 
     @Bean
@@ -64,14 +70,12 @@ public class SecurityConfig {
 
     @Bean
     CorsConfigurationSource corsConfig() {
-        var config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-            "http://localhost:3000",
-            "https://seu-front-em-producao.com"
-        ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        var source = new UrlBasedCorsConfigurationSource();
+        config.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
